@@ -2,12 +2,13 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"/>
-<title>三角形 ABC 的正交截線與包絡線 (全功能多分支方程式版)</title>
+<title>三角形 ABC 的正交截線與包絡線 (含縮放與平移版)</title>
 <style>
 body { font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif; margin: 16px; background: #f8fafc; color: #1e293b; }
 .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
 .main-layout { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-canvas { background: white; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); user-select: none; }
+canvas { background: white; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); user-select: none; cursor: grab; }
+canvas:active { cursor: grabbing; }
 .panel { width: 360px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 13px; }
 .panel h3 { margin: 0 0 10px 0; font-size: 15px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
 .section { margin-bottom: 12px; }
@@ -26,15 +27,18 @@ canvas { background: white; border: 1px solid #cbd5e1; border-radius: 8px; box-s
 .branch-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; }
 .eq-text { font-family: monospace; font-size: 11px; word-break: break-all; }
 .note { max-width: 1100px; font-size: 13px; color: #475569; line-height: 1.5; margin-top: 12px; }
-button { padding: 4px 12px; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+button { padding: 4px 10px; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
 button:hover { background: #0369a1; }
+button.btn-sec { background: #64748b; }
+button.btn-sec:hover { background: #475569; }
+.zoom-group { display: flex; align-items: center; gap: 6px; background: #e0f2fe; padding: 4px 8px; border-radius: 6px; border: 1px solid #bae6fd; }
 </style>
 </head>
 <body>
-<h2>三角形 ABC 的正交截線與包絡線 (全功能三分支解析版)</h2>
+<h2>三角形 ABC 的正交截線與包絡線 (支援畫布縮放與平移)</h2>
 
 <div class="controls">
-<label>點 P 的軌跡：
+<label>動點 P 軌跡：
 <select id="kind">
 <option value="line" selected>直線 (解析三分支二次方程)</option>
 <option value="circle">圓</option>
@@ -42,10 +46,19 @@ button:hover { background: #0369a1; }
 <option value="hyperbola">雙曲線</option>
 <option value="parabola">拋物線</option>
 </select></label>
-<label>位置滑桿 <input id="slider" type="range" min="0" max="300" value="150" style="width:180px"></label>
-<label><input id="family" type="checkbox" checked> 顯示整族截線</label>
-<label><input id="env" type="checkbox" checked> 顯示數值包絡</label>
-<button id="resetBtn">重置預設值</button>
+
+<label>位置滑桿 <input id="slider" type="range" min="0" max="300" value="150" style="width:140px"></label>
+
+<div class="zoom-group">
+  <span style="font-weight:bold; font-size:12px; color:#0369a1;">縮放: <span id="zoomVal">100%</span></span>
+  <button id="zoomInBtn">🔍 放大</button>
+  <button id="zoomOutBtn">🔍 縮小</button>
+  <button id="zoomResetBtn" class="btn-sec">🔄 重置視角</button>
+</div>
+
+<label><input id="family" type="checkbox" checked> 顯示截線族</label>
+<label><input id="env" type="checkbox" checked> 顯示包絡線</label>
+<button id="resetBtn" class="btn-sec">重置預設參數</button>
 </div>
 
 <div class="main-layout">
@@ -56,23 +69,23 @@ button:hover { background: #0369a1; }
 
     <!-- 1. 三角形座標 -->
     <div class="section">
-      <div class="section-title">🔺 三角形頂點座標 (可拖曳/輸入)</div>
+      <div class="section-title">🔺 三角形頂點座標 (可輸入根號/分數/LaTeX)</div>
       <div class="grid-2">
-        <div class="input-group"><label>A<sub>x</sub></label><input type="number" id="ax" step="0.1"></div>
-        <div class="input-group"><label>A<sub>y</sub></label><input type="number" id="ay" step="0.1"></div>
-        <div class="input-group"><label>B<sub>x</sub></label><input type="number" id="bx" step="0.1"></div>
-        <div class="input-group"><label>B<sub>y</sub></label><input type="number" id="by" step="0.1"></div>
-        <div class="input-group"><label>C<sub>x</sub></label><input type="number" id="cx" step="0.1"></div>
-        <div class="input-group"><label>C<sub>y</sub></label><input type="number" id="cy" step="0.1"></div>
+        <div class="input-group"><label>A<sub>x</sub></label><input type="text" id="ax" value="-3"></div>
+        <div class="input-group"><label>A<sub>y</sub></label><input type="text" id="ay" value="-2"></div>
+        <div class="input-group"><label>B<sub>x</sub></label><input type="text" id="bx" value="3"></div>
+        <div class="input-group"><label>B<sub>y</sub></label><input type="text" id="by" value="-2"></div>
+        <div class="input-group"><label>C<sub>x</sub></label><input type="text" id="cx" value="0.5"></div>
+        <div class="input-group"><label>C<sub>y</sub></label><input type="text" id="cy" value="3"></div>
       </div>
     </div>
 
     <!-- 2. 軌跡中心平移 -->
     <div class="section">
-      <div class="section-title">📍 軌跡中心 O 偏移 (可拖曳/輸入)</div>
+      <div class="section-title">📍 軌跡中心 O 偏移 (可輸入算式)</div>
       <div class="grid-2">
-        <div class="input-group"><label>O<sub>x</sub></label><input type="number" id="ox" step="0.1"></div>
-        <div class="input-group"><label>O<sub>y</sub></label><input type="number" id="oy" step="0.1"></div>
+        <div class="input-group"><label>O<sub>x</sub></label><input type="text" id="ox" value="0"></div>
+        <div class="input-group"><label>O<sub>y</sub></label><input type="text" id="oy" value="0"></div>
       </div>
     </div>
 
@@ -132,14 +145,42 @@ button:hover { background: #0369a1; }
 </div>
 
 <p class="note">
-<b>💡 幾何修正與雙重模式說明：</b><br>
-• <b>直線軌跡三分支</b>：點 P 沿直線運動時，截線族跨越 2 個漸近線極點 $t_1, t_2$ 會發生發散跳變。系統已精確算出三個不連通區間，並分別以獨立的二元二次隱函數方程式完整呈現。<br>
-• <b>高次軌跡包絡線</b>：當軌跡為圓、橢圓或雙曲線時，包絡線屬於 4~6 階高次代數曲線，系統自動啟用連續邊界與尖點（Cusps）過濾，精確保留多分支邊界。
+<b>💡 操作與輸入說明：</b><br>
+• <b>縮放與平移</b>：可以在畫布上使用<b>滑鼠滾輪</b>放大/縮小視野；在畫布空白處<b>按住拖曳</b>可平移視角。<br>
+• <b>動態拖曳</b>：直接拖曳頂點 A、B、C 或軌跡中心 O；拖曳動點 P 可沿軌跡移動。<br>
+• <b>算式支援</b>：所有輸入框皆支援 LaTeX 與數學算式，如 <code>\sqrt{3}</code>、<code>\frac{1}{2}</code>、<code>\pi</code> 等。
 </p>
 
 <script>
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-const W = cv.width, H = cv.height, S = 58, ox = W / 2, oy = H / 2;
+const W = cv.width, H = cv.height;
+
+// 縮放與平移狀態變數
+const DEFAULT_S = 58;
+let S = DEFAULT_S;          // 比例尺 (像素/單位)
+let ox = W / 2, oy = H / 2; // 原點 (0,0) 的畫布像素座標
+
+// 數學表達式解析器
+function parseMathExp(input) {
+  if (typeof input === 'number') return isNaN(input) ? 0 : input;
+  if (!input || typeof input !== 'string') return 0;
+  let s = input.trim();
+  if (s === '') return 0;
+
+  while (s.includes('\\frac')) s = s.replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, '(($1)/($2))');
+  s = s.replace(/\\sqrt\s*\{([^{}]+)\}/gi, 'Math.sqrt($1)');
+  s = s.replace(/\\?sqrt\s*\(?([0-9.]+)\)?/gi, 'Math.sqrt($1)');
+  s = s.replace(/\\?pi/gi, 'Math.PI');
+  s = s.replace(/\\/g, '');
+  s = s.replace(/(\d|\))\s*(Math\.sqrt|Math\.PI|\()/g, '$1*$2');    try {     if (/[^0-9\+\-\*\/\(\)\.\sMathsqrtPI]/.test(s)) {
+      const val = parseFloat(input); return isNaN(val) ? 0 : val;
+    }
+    const res = new Function(`return (${s})`)();
+    return (typeof res === 'number' && !isNaN(res)) ? res : 0;
+  } catch(e) {
+    const val = parseFloat(input); return isNaN(val) ? 0 : val;
+  }
+}
 
 let state = {
   A: {x: -3, y: -2},
@@ -153,8 +194,10 @@ let state = {
   paraA: 0.34, paraK: -2.3
 };
 
-function sx(x){return ox + S * x} function sy(y){return oy - S * y}
-function mx(px){return (px - ox) / S} function my(py){return (oy - py) / S}
+function sx(x){ return ox + S * x; }
+function sy(y){ return oy - S * y; }
+function mx(px){ return (px - ox) / S; }
+function my(py){ return (oy - py) / S; }
 
 function sub(a,b){return {x:a.x-b.x, y:a.y-b.y}}
 function add(a,b){return {x:a.x+b.x, y:a.y+b.y}}
@@ -306,7 +349,7 @@ function drawSeg(P,Q,width=1,dash=[],color='#000'){
 }
 
 function drawInfinite(l,width=1,alpha=.25){
-  const pts=[]; const xmin=-14, xmax=14, ymin=-12, ymax=12;
+  const pts=[]; const xmin=-25, xmax=25, ymin=-25, ymax=25;
   if(Math.abs(l.b)>1e-9){pts.push({x:xmin,y:-(l.a*xmin+l.c)/l.b},{x:xmax,y:-(l.a*xmax+l.c)/l.b});}
   else if(Math.abs(l.a)>1e-9){let x=-l.c/l.a;pts.push({x,y:ymin},{x,y:ymax});}
   if(pts.length<2)return;
@@ -356,7 +399,7 @@ function familyAndEnv(kind, poles){
       for(let i=0; i<=N; i++){
         let t = inter.min + (inter.max - inter.min) * i / N;
         let Q = getEnvelopePoint(kind, t);
-        if(Q && Math.abs(Q.x)<16 && Math.abs(Q.y)<14){
+        if(Q && Math.abs(Q.x)<25 && Math.abs(Q.y)<25){
           if(!drawing){ ctx.moveTo(sx(Q.x), sy(Q.y)); drawing = true; }
           else { ctx.lineTo(sx(Q.x), sy(Q.y)); }
         } else { drawing = false; }
@@ -375,7 +418,7 @@ function familyAndEnv(kind, poles){
 
         if(showEnv){
           const Q = getEnvelopePoint(kind, t, br);
-          if(Q && Math.abs(Q.x)<16 && Math.abs(Q.y)<14){ envPoints.push(Q); } else { envPoints.push(null); }
+          if(Q && Math.abs(Q.x)<25 && Math.abs(Q.y)<25){ envPoints.push(Q); } else { envPoints.push(null); }
         }
       }
 
@@ -385,7 +428,7 @@ function familyAndEnv(kind, poles){
         for(let i=0; i<envPoints.length; i++){
           const Q = envPoints[i];
           if(!Q){ drawing = false; lastPt = null; continue; }
-          if(lastPt && Math.hypot(Q.x - lastPt.x, Q.y - lastPt.y) > 1.2){ drawing = false; }
+          if(lastPt && Math.hypot(Q.x - lastPt.x, Q.y - lastPt.y) > 1.5){ drawing = false; }
           if(!drawing){ ctx.moveTo(sx(Q.x), sy(Q.y)); drawing = true; }
           else { ctx.lineTo(sx(Q.x), sy(Q.y)); }
           lastPt = Q;
@@ -428,11 +471,44 @@ function updateThreeEquations(kind, poles, currentT) {
   }
 }
 
+function drawGrid() {
+  ctx.save();
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+
+  // 動態網格間距
+  let gridStep = 1;
+  if (S < 25) gridStep = 5;
+  if (S < 10) gridStep = 10;
+  if (S > 120) gridStep = 0.5;
+
+  const minX = Math.floor(mx(0) / gridStep) * gridStep;
+  const maxX = Math.ceil(mx(W) / gridStep) * gridStep;
+  const minY = Math.floor(my(H) / gridStep) * gridStep;
+  const maxY = Math.ceil(my(0) / gridStep) * gridStep;
+
+  ctx.beginPath();
+  for (let x = minX; x <= maxX; x += gridStep) {
+    ctx.moveTo(sx(x), 0); ctx.lineTo(sx(x), H);
+  }
+  for (let y = minY; y <= maxY; y += gridStep) {
+    ctx.moveTo(0, sy(y)); ctx.lineTo(W, sy(y));
+  }
+  ctx.stroke();
+
+  // 主要 X/Y 軸
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, sy(0)); ctx.lineTo(W, sy(0));
+  ctx.moveTo(sx(0), 0); ctx.lineTo(sx(0), H);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function draw(){
   ctx.clearRect(0,0,W,H);
-  ctx.save();ctx.globalAlpha=.15;ctx.beginPath();
-  ctx.moveTo(0,sy(0));ctx.lineTo(W,sy(0));ctx.moveTo(sx(0),0);ctx.lineTo(sx(0),H);
-  ctx.stroke();ctx.restore();
+  drawGrid();
 
   const kind=document.getElementById('kind').value;
   locusDraw(kind);
@@ -494,24 +570,24 @@ function renderParamControls(){
   if(kind === 'line'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>斜率m</label><input type="number" id="p-m" step="0.1" value="${state.lineM}"></div>
-        <div class="input-group"><label>截距k</label><input type="number" id="p-k" step="0.1" value="${state.lineK}"></div>
+        <div class="input-group"><label>斜率m</label><input type="text" id="p-m" value="${state.lineM}"></div>
+        <div class="input-group"><label>截距k</label><input type="text" id="p-k" value="${state.lineK}"></div>
       </div>`;
   } else if(kind === 'circle'){
     box.innerHTML = `
-      <div class="input-group"><label>半徑R</label><input type="number" id="p-r" step="0.1" min="0.1" value="${state.circleR}"></div>`;
+      <div class="input-group"><label>半徑R</label><input type="text" id="p-r" value="${state.circleR}"></div>`;
   } else if(kind === 'ellipse'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>長軸a</label><input type="number" id="p-ea" step="0.1" min="0.1" value="${state.ellipseA}"></div>
-        <div class="input-group"><label>短軸b</label><input type="number" id="p-eb" step="0.1" min="0.1" value="${state.ellipseB}"></div>
-        <div class="input-group"><label>旋轉°</label><input type="number" id="p-eang" step="5" value="${state.ellipseAngle}"></div>
+        <div class="input-group"><label>長軸a</label><input type="text" id="p-ea" value="${state.ellipseA}"></div>
+        <div class="input-group"><label>短軸b</label><input type="text" id="p-eb" value="${state.ellipseB}"></div>
+        <div class="input-group"><label>旋轉°</label><input type="text" id="p-eang" value="${state.ellipseAngle}"></div>
       </div>`;
   } else if(kind === 'hyperbola'){
     box.innerHTML = `
       <div class="grid-2" style="margin-bottom:6px;">
-        <div class="input-group"><label>實軸a</label><input type="number" id="p-ha" step="0.1" min="0.1" value="${state.hyperA}"></div>
-        <div class="input-group"><label>虛軸b</label><input type="number" id="p-hb" step="0.1" min="0.1" value="${state.hyperB}"></div>
+        <div class="input-group"><label>實軸a</label><input type="text" id="p-ha" value="${state.hyperA}"></div>
+        <div class="input-group"><label>虛軸b</label><input type="text" id="p-hb" value="${state.hyperB}"></div>
       </div>
       <div class="input-group">
         <label style="min-width:70px; font-weight:bold; color:#0284c7;">動點分支</label>
@@ -523,8 +599,8 @@ function renderParamControls(){
   } else if(kind === 'parabola'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>參數a</label><input type="number" id="p-pa" step="0.05" value="${state.paraA}"></div>
-        <div class="input-group"><label>頂點k</label><input type="number" id="p-pk" step="0.1" value="${state.paraK}"></div>
+        <div class="input-group"><label>參數a</label><input type="text" id="p-pa" value="${state.paraA}"></div>
+        <div class="input-group"><label>頂點k</label><input type="text" id="p-pk" value="${state.paraK}"></div>
       </div>`;
   }
   bindParamEvents();
@@ -533,34 +609,78 @@ function renderParamControls(){
 function bindParamEvents(){
   const kind = document.getElementById('kind').value;
   if(kind === 'line'){
-    document.getElementById('p-m').oninput = e => { state.lineM = parseFloat(e.target.value)||0; draw(); };
-    document.getElementById('p-k').oninput = e => { state.lineK = parseFloat(e.target.value)||0; draw(); };
+    document.getElementById('p-m').oninput = e => { state.lineM = parseMathExp(e.target.value); draw(); };
+    document.getElementById('p-k').oninput = e => { state.lineK = parseMathExp(e.target.value); draw(); };
   } else if(kind === 'circle'){
-    document.getElementById('p-r').oninput = e => { state.circleR = Math.max(0.1, parseFloat(e.target.value)||1); draw(); };
+    document.getElementById('p-r').oninput = e => { state.circleR = Math.max(0.001, parseMathExp(e.target.value)); draw(); };
   } else if(kind === 'ellipse'){
-    document.getElementById('p-ea').oninput = e => { state.ellipseA = Math.max(0.1, parseFloat(e.target.value)||1); draw(); };
-    document.getElementById('p-eb').oninput = e => { state.ellipseB = Math.max(0.1, parseFloat(e.target.value)||1); draw(); };
-    document.getElementById('p-eang').oninput = e => { state.ellipseAngle = parseFloat(e.target.value)||0; draw(); };
+    document.getElementById('p-ea').oninput = e => { state.ellipseA = Math.max(0.001, parseMathExp(e.target.value)); draw(); };
+    document.getElementById('p-eb').oninput = e => { state.ellipseB = Math.max(0.001, parseMathExp(e.target.value)); draw(); };
+    document.getElementById('p-eang').oninput = e => { state.ellipseAngle = parseMathExp(e.target.value); draw(); };
   } else if(kind === 'hyperbola'){
-    document.getElementById('p-ha').oninput = e => { state.hyperA = Math.max(0.1, parseFloat(e.target.value)||1); draw(); };
-    document.getElementById('p-hb').oninput = e => { state.hyperB = Math.max(0.1, parseFloat(e.target.value)||1); draw(); };
+    document.getElementById('p-ha').oninput = e => { state.hyperA = Math.max(0.001, parseMathExp(e.target.value)); draw(); };
+    document.getElementById('p-hb').oninput = e => { state.hyperB = Math.max(0.001, parseMathExp(e.target.value)); draw(); };
     document.getElementById('p-hbranch').onchange = e => { state.hyperBranch = parseInt(e.target.value); draw(); };
   } else if(kind === 'parabola'){
-    document.getElementById('p-pa').oninput = e => { state.paraA = parseFloat(e.target.value)||0; draw(); };
-    document.getElementById('p-pk').oninput = e => { state.paraK = parseFloat(e.target.value)||0; draw(); };
+    document.getElementById('p-pa').oninput = e => { state.paraA = parseMathExp(e.target.value); draw(); };
+    document.getElementById('p-pk').oninput = e => { state.paraK = parseMathExp(e.target.value); draw(); };
   }
 }
 
+function updateStateFromInputs() {
+  state.A.x = parseMathExp(document.getElementById('ax').value);
+  state.A.y = parseMathExp(document.getElementById('ay').value);
+  state.B.x = parseMathExp(document.getElementById('bx').value);
+  state.B.y = parseMathExp(document.getElementById('by').value);
+  state.C.x = parseMathExp(document.getElementById('cx').value);
+  state.C.y = parseMathExp(document.getElementById('cy').value);
+  state.O.x = parseMathExp(document.getElementById('ox').value);
+  state.O.y = parseMathExp(document.getElementById('oy').value);
+}
+
+// 縮放與視角更新邏輯
+function updateZoomDisplay() {
+  document.getElementById('zoomVal').innerText = Math.round((S / DEFAULT_S) * 100) + '%';
+}
+
+function setZoomAtPoint(factor, px, py) {
+  const wx = (px - ox) / S;
+  const wy = (oy - py) / S;
+  const newS = Math.max(10, Math.min(400, S * factor));
+  if (newS !== S) {
+    S = newS;
+    ox = px - wx * S;
+    oy = py + wy * S;
+    updateZoomDisplay();
+    draw();
+  }
+}
+
+// 滾輪事件：以滑鼠位置為中心縮放
+cv.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = cv.getBoundingClientRect();
+  const scaleX = cv.width / rect.width, scaleY = cv.height / rect.height;
+  const mX = (e.clientX - rect.left) * scaleX;
+  const mY = (e.clientY - rect.top) * scaleY;
+
+  const factor = e.deltaY < 0 ? 1.15 : 0.87;
+  setZoomAtPoint(factor, mX, mY);
+}, { passive: false });
+
+document.getElementById('zoomInBtn').addEventListener('click', () => setZoomAtPoint(1.2, W / 2, H / 2));
+document.getElementById('zoomOutBtn').addEventListener('click', () => setZoomAtPoint(0.83, W / 2, H / 2));
+document.getElementById('zoomResetBtn').addEventListener('click', () => {
+  S = DEFAULT_S;
+  ox = W / 2;
+  oy = H / 2;
+  updateZoomDisplay();
+  draw();
+});
+
 ['ax','ay','bx','by','cx','cy','ox','oy'].forEach(id => {
   document.getElementById(id).addEventListener('input', () => {
-    state.A.x = parseFloat(document.getElementById('ax').value)||0;
-    state.A.y = parseFloat(document.getElementById('ay').value)||0;
-    state.B.x = parseFloat(document.getElementById('bx').value)||0;
-    state.B.y = parseFloat(document.getElementById('by').value)||0;
-    state.C.x = parseFloat(document.getElementById('cx').value)||0;
-    state.C.y = parseFloat(document.getElementById('cy').value)||0;
-    state.O.x = parseFloat(document.getElementById('ox').value)||0;
-    state.O.y = parseFloat(document.getElementById('oy').value)||0;
+    updateStateFromInputs();
     draw();
   });
 });
@@ -575,7 +695,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   state.ellipseA=4.3; state.ellipseB=2.2; state.ellipseAngle=0;
   state.hyperA=2; state.hyperB=1.35; state.hyperBranch=1;
   state.paraA=0.34; state.paraK=-2.3;
-  syncInputsFromState(); renderParamControls(); draw();
+  S = DEFAULT_S; ox = W / 2; oy = H / 2;
+  updateZoomDisplay();
+  syncInputsFromState(); renderParamControls(); updateStateFromInputs(); draw();
 });
 
 let dragTarget = null, dragMouseStart = {x:0, y:0}, dragOffsetStart = {x:0, y:0};
@@ -583,7 +705,12 @@ let dragTarget = null, dragMouseStart = {x:0, y:0}, dragOffsetStart = {x:0, y:0}
 function getCanvasMouse(e){
   const rect = cv.getBoundingClientRect();
   const scaleX = cv.width / rect.width, scaleY = cv.height / rect.height;
-  return { x: mx((e.clientX - rect.left) * scaleX), y: my((e.clientY - rect.top) * scaleY) };
+  return {
+    px: (e.clientX - rect.left) * scaleX,
+    py: (e.clientY - rect.top) * scaleY,
+    x: mx((e.clientX - rect.left) * scaleX),
+    y: my((e.clientY - rect.top) * scaleY)
+  };
 }
 
 function updateSliderFromMouse(mX, mY, kind){
@@ -612,10 +739,14 @@ cv.addEventListener('mousedown', (e)=>{
   else if (Math.hypot(m.x-state.C.x, m.y-state.C.y) < hitR) dragTarget = 'C';
   else if (Math.hypot(m.x-currentP.x, m.y-currentP.y) < hitR) dragTarget = 'P';
   else if (Math.hypot(m.x-state.O.x, m.y-state.O.y) < hitR) dragTarget = 'O';
+  else dragTarget = 'pan'; // 點擊空白處拖曳視野 (Pan)
 
   if (dragTarget === 'O') {
     dragMouseStart = { x: m.x, y: m.y };
     dragOffsetStart = { ...state.O };
+  } else if (dragTarget === 'pan') {
+    dragMouseStart = { x: m.px, y: m.py };
+    dragOffsetStart = { x: ox, y: oy };
   } else if (dragTarget === 'P') {
     updateSliderFromMouse(m.x, m.y, kind); draw();
   }
@@ -635,11 +766,10 @@ cv.addEventListener('mousemove', (e)=>{
         Math.hypot(m.x-state.C.x, m.y-state.C.y) < hitR || Math.hypot(m.x-currentP.x, m.y-currentP.y) < hitR ||
         Math.hypot(m.x-state.O.x, m.y-state.O.y) < hitR) {
       cv.style.cursor = 'pointer';
-    } else { cv.style.cursor = 'default'; }
+    } else { cv.style.cursor = 'grab'; }
     return;
   }
 
-  cv.style.cursor = 'grabbing';
   if (dragTarget === 'A') { state.A.x = m.x; state.A.y = m.y; }
   else if (dragTarget === 'B') { state.B.x = m.x; state.B.y = m.y; }
   else if (dragTarget === 'C') { state.C.x = m.x; state.C.y = m.y; }
@@ -647,16 +777,19 @@ cv.addEventListener('mousemove', (e)=>{
   else if (dragTarget === 'O') {
     state.O.x = dragOffsetStart.x + (m.x - dragMouseStart.x);
     state.O.y = dragOffsetStart.y + (m.y - dragMouseStart.y);
+  } else if (dragTarget === 'pan') {
+    ox = dragOffsetStart.x + (m.px - dragMouseStart.x);
+    oy = dragOffsetStart.y + (m.py - dragMouseStart.y);
   }
   syncInputsFromState(); draw();
 });
 
-const stopDrag = () => { dragTarget = null; cv.style.cursor = 'default'; };
+const stopDrag = () => { dragTarget = null; cv.style.cursor = 'grab'; };
 cv.addEventListener('mouseup', stopDrag); cv.addEventListener('mouseleave', stopDrag);
 
 ['slider','family','env'].forEach(id => document.getElementById(id).addEventListener('input', draw));
 
-syncInputsFromState();
+updateStateFromInputs();
 renderParamControls();
 draw();
 </script>
