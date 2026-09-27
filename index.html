@@ -18,14 +18,24 @@ canvas:active { cursor: grabbing; }
 .input-group label { font-size: 12px; color: #475569; min-width: 22px; }
 .input-group input, .input-group select { width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; font-family: monospace; }
 .input-group input:focus, .input-group select:focus { outline: none; border-color: #0284c7; }
+
+/* 上下按鈕微調樣式 */
+.step-btns { display: flex; flex-direction: column; gap: 1px; }
+.step-btn {
+  padding: 0 4px;
+  height: 11px;
+  line-height: 9px;
+  font-size: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.step-btn:hover { background: #0284c7; color: white; border-color: #0284c7; }
+
 .param-box { background: #f1f5f9; padding: 8px; border-radius: 6px; margin-top: 4px; border: 1px solid #e2e8f0; }
 .readonly-val { font-family: monospace; font-weight: bold; color: #334155; }
-.branch-card { padding: 8px; border-radius: 6px; margin-top: 6px; border: 1px solid; font-size: 12px; }
-.card-b1 { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
-.card-b2 { background: #f0fdf4; border-color: #86efac; color: #166534; }
-.card-b3 { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
-.branch-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; }
-.eq-text { font-family: monospace; font-size: 11px; word-break: break-all; }
 .note { max-width: 1100px; font-size: 13px; color: #475569; line-height: 1.5; margin-top: 12px; }
 button { padding: 4px 10px; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
 button:hover { background: #0369a1; }
@@ -40,7 +50,7 @@ button.btn-sec:hover { background: #475569; }
 <div class="controls">
 <label>動點 P 軌跡：
 <select id="kind">
-<option value="line" selected>直線 (解析三分支二次方程)</option>
+<option value="line" selected>直線</option>
 <option value="circle">圓</option>
 <option value="ellipse">橢圓</option>
 <option value="hyperbola">雙曲線</option>
@@ -69,23 +79,71 @@ button.btn-sec:hover { background: #475569; }
 
     <!-- 1. 三角形座標 -->
     <div class="section">
-      <div class="section-title">🔺 三角形頂點座標 (可輸入根號/分數/LaTeX)</div>
+      <div class="section-title">🔺 三角形頂點座標 (可輸入算式/微調)</div>
       <div class="grid-2">
-        <div class="input-group"><label>A<sub>x</sub></label><input type="text" id="ax" value="-3"></div>
-        <div class="input-group"><label>A<sub>y</sub></label><input type="text" id="ay" value="-2"></div>
-        <div class="input-group"><label>B<sub>x</sub></label><input type="text" id="bx" value="3"></div>
-        <div class="input-group"><label>B<sub>y</sub></label><input type="text" id="by" value="-2"></div>
-        <div class="input-group"><label>C<sub>x</sub></label><input type="text" id="cx" value="0.5"></div>
-        <div class="input-group"><label>C<sub>y</sub></label><input type="text" id="cy" value="3"></div>
+        <div class="input-group">
+          <label>A<sub>x</sub></label><input type="text" id="ax" value="-3">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('ax', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('ax', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>A<sub>y</sub></label><input type="text" id="ay" value="-2">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('ay', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('ay', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>B<sub>x</sub></label><input type="text" id="bx" value="3">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('bx', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('bx', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>B<sub>y</sub></label><input type="text" id="by" value="-2">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('by', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('by', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>C<sub>x</sub></label><input type="text" id="cx" value="0.5">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('cx', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('cx', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>C<sub>y</sub></label><input type="text" id="cy" value="3">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('cy', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('cy', -0.5)">▼</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 2. 軌跡中心平移 -->
     <div class="section">
-      <div class="section-title">📍 軌跡中心 O 偏移 (可輸入算式)</div>
+      <div class="section-title">📍 軌跡中心 O 偏移 (可輸入算式/微調)</div>
       <div class="grid-2">
-        <div class="input-group"><label>O<sub>x</sub></label><input type="text" id="ox" value="0"></div>
-        <div class="input-group"><label>O<sub>y</sub></label><input type="text" id="oy" value="0"></div>
+        <div class="input-group">
+          <label>O<sub>x</sub></label><input type="text" id="ox" value="0">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('ox', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('ox', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>O<sub>y</sub></label><input type="text" id="oy" value="0">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('oy', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('oy', -0.5)">▼</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -114,41 +172,14 @@ button.btn-sec:hover { background: #475569; }
         <div id="val-env-pt" class="readonly-val" style="color: #15803d; font-size: 12px;">-</div>
       </div>
     </div>
-
-    <!-- 6. 漸近線極點與三分段隱函數方程式 -->
-    <div class="section">
-      <div class="section-title">✂️ 漸近線極點與三分段方程式</div>
-      <div style="font-size: 12px; margin-bottom: 4px;">
-        極點位置：t<sub>1</sub> = <span id="pole-1" class="readonly-val">-</span>, t<sub>2</sub> = <span id="pole-2" class="readonly-val">-</span>
-      </div>
-
-      <div class="branch-card card-b1">
-        <div class="branch-title"><span>🔴 分支 1 (左下)</span> <span id="b1-bound">-</span></div>
-        <div class="eq-text" id="eq-b1">-</div>
-      </div>
-
-      <div class="branch-card card-b2">
-        <div class="branch-title"><span>🟢 分支 2 (中間/上方)</span> <span id="b2-bound">-</span></div>
-        <div class="eq-text" id="eq-b2">-</div>
-      </div>
-
-      <div class="branch-card card-b3">
-        <div class="branch-title"><span>🔵 分支 3 (右下)</span> <span id="b3-bound">-</span></div>
-        <div class="eq-text" id="eq-b3">-</div>
-      </div>
-
-      <div style="margin-top: 6px; font-size: 12px;">
-        當前動點 P(t) 位於：<span id="current-branch" class="readonly-val" style="color:#0284c7;">-</span>
-      </div>
-    </div>
   </div>
 </div>
 
 <p class="note">
 <b>💡 操作與輸入說明：</b><br>
-• <b>縮放與平移</b>：可以在畫布上使用<b>滑鼠滾輪</b>放大/縮小視野；在畫布空白處<b>按住拖曳</b>可平移視角。<br>
-• <b>動態拖曳</b>：直接拖曳頂點 A、B、C 或軌跡中心 O；拖曳動點 P 可沿軌跡移動。<br>
-• <b>算式支援</b>：所有輸入框皆支援 LaTeX 與數學算式，如 <code>\sqrt{3}</code>、<code>\frac{1}{2}</code>、<code>\pi</code> 等。
+• <b>按鈕微調與直接輸入</b>：點擊輸入框旁的 <code>▲</code> / <code>▼</code> 按鈕可快速增減數值；文字框亦支援 LaTeX 與算式，如 <code>\sqrt{3}</code>、<code>\frac{1}{2}</code> 等[cite: 1]。<br>
+• <b>縮放與平移</b>：可在畫布上使用<b>滑鼠滾輪</b>放大/縮小視野；在畫布空白處<b>按住拖曳</b>可平移視角[cite: 1]。<br>
+• <b>動態拖曳</b>：直接拖曳頂點 A、B、C 或軌跡中心 O；拖曳動點 P 可沿軌跡移動[cite: 1]。
 </p>
 
 <script>
@@ -172,7 +203,7 @@ function parseMathExp(input) {
   s = s.replace(/\\?sqrt\s*\(?([0-9.]+)\)?/gi, 'Math.sqrt($1)');
   s = s.replace(/\\?pi/gi, 'Math.PI');
   s = s.replace(/\\/g, '');
-  s = s.replace(/(\d|\))\s*(Math\.sqrt|Math\.PI|\()/g, '$1*$2');    try {     if (/[^0-9\+\-\*\/\(\)\.\sMathsqrtPI]/.test(s)) {
+  s = s.replace(/(\d|\))\s*(Math\.sqrt|Math\.PI|\()/g, '$1*$2');   try {     if (/[^0-9\+\-\*\/\(\)\.\sMathsqrtPI]/.test(s)) {
       const val = parseFloat(input); return isNaN(val) ? 0 : val;
     }
     const res = new Function(`return (${s})`)();
@@ -180,6 +211,16 @@ function parseMathExp(input) {
   } catch(e) {
     const val = parseFloat(input); return isNaN(val) ? 0 : val;
   }
+}
+
+// 通用輸入微調函數
+function stepInput(id, delta) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let val = parseMathExp(el.value);
+  val = Math.round((val + delta) * 100) / 100;
+  el.value = val;
+  el.dispatchEvent(new Event('input'));
 }
 
 let state = {
@@ -241,16 +282,6 @@ function Pof(kind, t, branch=1){
   return {x: x0 + state.O.x, y: y0 + state.O.y};
 }
 
-function Dval(kind, t, br=1) {
-  const eps = 1e-4;
-  const l  = ortholine(Pof(kind, t, br));
-  const lp = ortholine(Pof(kind, t + eps, br));
-  const lm = ortholine(Pof(kind, t - eps, br));
-  if(!l || !lp || !lm) return 0;
-  const da = (lp.a - lm.a) / (2 * eps), db = (lp.b - lm.b) / (2 * eps);
-  return l.a * db - da * l.b;
-}
-
 function getEnvelopePoint(kind, t, br=1){
   const eps = 1e-5;
   const P  = Pof(kind, t, br);
@@ -274,65 +305,6 @@ function getEnvelopePoint(kind, t, br=1){
     x: (l.b * dc - db * l.c) / den,
     y: (l.c * da - dc * l.a) / den
   };
-}
-
-function findPoles(kind) {
-  if(kind !== 'line') return [];
-  const lo = -15, hi = 15, N = 600, step = (hi - lo) / N, poles = [];
-  let lastD = Dval(kind, lo);
-
-  for(let i = 1; i <= N; i++){
-    let tCurr = lo + i * step;
-    let currD = Dval(kind, tCurr);
-    if(lastD * currD < 0){
-      let a = tCurr - step, b = tCurr;
-      for(let k=0; k<25; k++){
-        let mid = (a + b) / 2;
-        if(Dval(kind, a) * Dval(kind, mid) < 0) b = mid; else a = mid;
-      }
-      poles.push((a + b) / 2);
-    }
-    lastD = currD;
-  }
-  return poles.sort((a,b)=>a-b);
-}
-
-function fitConicForBranch(kind, tArray, br=1) {
-  let pts = [];
-  for(let t of tArray) {
-    let Q = getEnvelopePoint(kind, t, br);
-    if(Q && !isNaN(Q.x) && !isNaN(Q.y)) pts.push(Q);
-  }
-  if(pts.length < 5) return "數據點不足無法求解";
-
-  let A_mat = [], b_vec = [];
-  for(let i=0; i<5; i++){
-    let p = pts[i];
-    A_mat.push([p.x*p.x, p.x*p.y, p.y*p.y, p.x, p.y]);
-    b_vec.push(-1);
-  }
-
-  for (let i = 0; i < 5; i++) {
-    let maxR = i;
-    for (let k = i + 1; k < 5; k++) if (Math.abs(A_mat[k][i]) > Math.abs(A_mat[maxR][i])) maxR = k;
-    [A_mat[i], A_mat[maxR]] = [A_mat[maxR], A_mat[i]];
-    [b_vec[i], b_vec[maxR]] = [b_vec[maxR], b_vec[i]];
-    if (Math.abs(A_mat[i][i]) < 1e-12) return "奇異矩陣無解";
-    for (let k = i + 1; k < 5; k++) {
-      let f = A_mat[k][i] / A_mat[i][i];
-      for (let j = i; j < 5; j++) A_mat[k][j] -= f * A_mat[i][j];
-      b_vec[k] -= f * b_vec[i];
-    }
-  }
-  let c = new Array(5).fill(0);
-  for (let i = 4; i >= 0; i--) {
-    let sum = 0;
-    for (let j = i + 1; j < 5; j++) sum += A_mat[i][j] * c[j];
-    c[i] = (b_vec[i] - sum) / A_mat[i][i];
-  }
-
-  const fmt = (v) => (v >= 0 ? '+ ' : '- ') + Math.abs(v).toFixed(2);
-  return `${c[0].toFixed(2)}x² ${fmt(c[1])}xy ${fmt(c[2])}y² ${fmt(c[3])}x ${fmt(c[4])}y + 1.00 = 0`;
 }
 
 function ranges(kind){
@@ -381,93 +353,39 @@ function locusDraw(kind){
   point(state.O, 4, 'O軌跡', '#64748b');
 }
 
-function familyAndEnv(kind, poles){
+function familyAndEnv(kind){
   const [lo,hi]=ranges(kind);
   const showFamily = document.getElementById('family').checked;
   const showEnv = document.getElementById('env').checked;
+  const N = 500;
 
-  if(kind === 'line' && poles.length === 2 && showEnv) {
-    const eps = 0.12;
-    const intervals = [
-      { min: lo, max: poles[0] - eps, color: '#dc2626' },
-      { min: poles[0] + eps, max: poles[1] - eps, color: '#16a34a' },
-      { min: poles[1] + eps, max: hi, color: '#2563eb' }
-    ];
-    intervals.forEach(inter => {
-      ctx.save(); ctx.lineWidth = 2.5; ctx.strokeStyle = inter.color; ctx.beginPath();
-      const N = 200; let drawing = false;
-      for(let i=0; i<=N; i++){
-        let t = inter.min + (inter.max - inter.min) * i / N;
-        let Q = getEnvelopePoint(kind, t);
-        if(Q && Math.abs(Q.x)<25 && Math.abs(Q.y)<25){
-          if(!drawing){ ctx.moveTo(sx(Q.x), sy(Q.y)); drawing = true; }
-          else { ctx.lineTo(sx(Q.x), sy(Q.y)); }
-        } else { drawing = false; }
-      }
-      ctx.stroke(); ctx.restore();
-    });
-  } else {
-    const N = 500;
-    for(const br of (kind==='hyperbola'?[1,-1]:[1])){
-      let envPoints = [];
-      for(let i=0;i<=N;i++){
-        const t=lo+(hi-lo)*i/N;
-        const P=Pof(kind,t,br);
-        const l=ortholine(P);
-        if(l && showFamily && i % 2 === 0) drawInfinite(l,.8,.12);
+  for(const br of (kind==='hyperbola'?[1,-1]:[1])){
+    let envPoints = [];
+    for(let i=0;i<=N;i++){
+      const t=lo+(hi-lo)*i/N;
+      const P=Pof(kind,t,br);
+      const l=ortholine(P);
+      if(l && showFamily && i % 2 === 0) drawInfinite(l,.8,.12);
 
-        if(showEnv){
-          const Q = getEnvelopePoint(kind, t, br);
-          if(Q && Math.abs(Q.x)<25 && Math.abs(Q.y)<25){ envPoints.push(Q); } else { envPoints.push(null); }
-        }
-      }
-
-      if(showEnv && envPoints.length){
-        ctx.save(); ctx.lineWidth=2.5; ctx.strokeStyle='#dc2626'; ctx.beginPath();
-        let drawing = false, lastPt = null;
-        for(let i=0; i<envPoints.length; i++){
-          const Q = envPoints[i];
-          if(!Q){ drawing = false; lastPt = null; continue; }
-          if(lastPt && Math.hypot(Q.x - lastPt.x, Q.y - lastPt.y) > 1.5){ drawing = false; }
-          if(!drawing){ ctx.moveTo(sx(Q.x), sy(Q.y)); drawing = true; }
-          else { ctx.lineTo(sx(Q.x), sy(Q.y)); }
-          lastPt = Q;
-        }
-        ctx.stroke(); ctx.restore();
+      if(showEnv){
+        const Q = getEnvelopePoint(kind, t, br);
+        if(Q && Math.abs(Q.x)<25 && Math.abs(Q.y)<25){ envPoints.push(Q); } else { envPoints.push(null); }
       }
     }
-  }
-}
 
-function updateThreeEquations(kind, poles, currentT) {
-  if(kind === 'line' && poles.length === 2) {
-    const t1 = poles[0], t2 = poles[1];
-    document.getElementById('pole-1').innerText = t1.toFixed(2);
-    document.getElementById('pole-2').innerText = t2.toFixed(2);
-
-    document.getElementById('b1-bound').innerText = `(t < ${t1.toFixed(2)})`;
-    document.getElementById('b2-bound').innerText = `(${t1.toFixed(2)} < t < ${t2.toFixed(2)})`;
-    document.getElementById('b3-bound').innerText = `(t > ${t2.toFixed(2)})`;
-
-    const sampleB1 = [t1 - 4.0, t1 - 2.5, t1 - 1.5, t1 - 0.8, t1 - 0.3];
-    const sampleB2 = [t1 + 0.3, t1 + (t2-t1)*0.3, (t1+t2)/2, t1 + (t2-t1)*0.7, t2 - 0.3];
-    const sampleB3 = [t2 + 0.3, t2 + 0.8, t2 + 1.5, t2 + 2.5, t2 + 4.0];
-
-    document.getElementById('eq-b1').innerText = fitConicForBranch(kind, sampleB1);
-    document.getElementById('eq-b2').innerText = fitConicForBranch(kind, sampleB2);
-    document.getElementById('eq-b3').innerText = fitConicForBranch(kind, sampleB3);
-
-    let curText = "";
-    if(currentT < t1) curText = "🔴 分支 1 (左下)";
-    else if(currentT > t1 && currentT < t2) curText = "🟢 分支 2 (中間/上方)";
-    else curText = "🔵 分支 3 (右下)";
-    document.getElementById('current-branch').innerText = curText;
-  } else {
-    document.getElementById('pole-1').innerText = "無"; document.getElementById('pole-2').innerText = "無";
-    document.getElementById('b1-bound').innerText = "(全域連續)"; document.getElementById('b2-bound').innerText = "(無)"; document.getElementById('b3-bound').innerText = "(無)";
-    document.getElementById('eq-b1').innerText = "高次曲線包絡線（具備尖點/多分支）";
-    document.getElementById('eq-b2').innerText = "-"; document.getElementById('eq-b3').innerText = "-";
-    document.getElementById('current-branch').innerText = "高次連續/分支區域";
+    if(showEnv && envPoints.length){
+      ctx.save(); ctx.lineWidth=2.5; ctx.strokeStyle='#dc2626'; ctx.beginPath();
+      let drawing = false, lastPt = null;
+      for(let i=0; i<envPoints.length; i++){
+        const Q = envPoints[i];
+        if(!Q){ drawing = false; lastPt = null; continue; }
+        if(lastPt && Math.hypot(Q.x - lastPt.x, Q.y - lastPt.y) > 1.5){ drawing = false; }
+        if(!drawing){ ctx.moveTo(sx(Q.x), sy(Q.y)); drawing = true; }
+        else { ctx.lineTo(sx(Q.x), sy(Q.y)); }
+        lastPt = Q;
+      }
+      ctx.stroke(); ctx.restore();
+    }
   }
 }
 
@@ -476,7 +394,6 @@ function drawGrid() {
   ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 1;
 
-  // 動態網格間距
   let gridStep = 1;
   if (S < 25) gridStep = 5;
   if (S < 10) gridStep = 10;
@@ -496,7 +413,6 @@ function drawGrid() {
   }
   ctx.stroke();
 
-  // 主要 X/Y 軸
   ctx.strokeStyle = '#94a3b8';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -512,9 +428,7 @@ function draw(){
 
   const kind=document.getElementById('kind').value;
   locusDraw(kind);
-
-  const poles = findPoles(kind);
-  familyAndEnv(kind, poles);
+  familyAndEnv(kind);
 
   // 三角形 ABC
   drawSeg(state.A,state.B,2);drawSeg(state.B,state.C,2);drawSeg(state.C,state.A,2);
@@ -539,7 +453,6 @@ function draw(){
   if(curQ && document.getElementById('env').checked) point(curQ, 4.5, 'Q(t)', '#dc2626');
 
   updateReadOnlyPanel(P, l, curQ);
-  updateThreeEquations(kind, poles, t);
 }
 
 function updateReadOnlyPanel(P, l, Q){
@@ -570,24 +483,72 @@ function renderParamControls(){
   if(kind === 'line'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>斜率m</label><input type="text" id="p-m" value="${state.lineM}"></div>
-        <div class="input-group"><label>截距k</label><input type="text" id="p-k" value="${state.lineK}"></div>
+        <div class="input-group">
+          <label>斜率m</label><input type="text" id="p-m" value="${state.lineM}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-m', 0.1)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-m', -0.1)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>截距k</label><input type="text" id="p-k" value="${state.lineK}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-k', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-k', -0.5)">▼</button>
+          </div>
+        </div>
       </div>`;
   } else if(kind === 'circle'){
     box.innerHTML = `
-      <div class="input-group"><label>半徑R</label><input type="text" id="p-r" value="${state.circleR}"></div>`;
+      <div class="input-group">
+        <label>半徑R</label><input type="text" id="p-r" value="${state.circleR}">
+        <div class="step-btns">
+          <button type="button" class="step-btn" onclick="stepInput('p-r', 0.5)">▲</button>
+          <button type="button" class="step-btn" onclick="stepInput('p-r', -0.5)">▼</button>
+        </div>
+      </div>`;
   } else if(kind === 'ellipse'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>長軸a</label><input type="text" id="p-ea" value="${state.ellipseA}"></div>
-        <div class="input-group"><label>短軸b</label><input type="text" id="p-eb" value="${state.ellipseB}"></div>
-        <div class="input-group"><label>旋轉°</label><input type="text" id="p-eang" value="${state.ellipseAngle}"></div>
+        <div class="input-group">
+          <label>長軸a</label><input type="text" id="p-ea" value="${state.ellipseA}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-ea', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-ea', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>短軸b</label><input type="text" id="p-eb" value="${state.ellipseB}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-eb', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-eb', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>旋轉°</label><input type="text" id="p-eang" value="${state.ellipseAngle}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-eang', 5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-eang', -5)">▼</button>
+          </div>
+        </div>
       </div>`;
   } else if(kind === 'hyperbola'){
     box.innerHTML = `
       <div class="grid-2" style="margin-bottom:6px;">
-        <div class="input-group"><label>實軸a</label><input type="text" id="p-ha" value="${state.hyperA}"></div>
-        <div class="input-group"><label>虛軸b</label><input type="text" id="p-hb" value="${state.hyperB}"></div>
+        <div class="input-group">
+          <label>實軸a</label><input type="text" id="p-ha" value="${state.hyperA}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-ha', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-ha', -0.5)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>虛軸b</label><input type="text" id="p-hb" value="${state.hyperB}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-hb', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-hb', -0.5)">▼</button>
+          </div>
+        </div>
       </div>
       <div class="input-group">
         <label style="min-width:70px; font-weight:bold; color:#0284c7;">動點分支</label>
@@ -599,8 +560,20 @@ function renderParamControls(){
   } else if(kind === 'parabola'){
     box.innerHTML = `
       <div class="grid-2">
-        <div class="input-group"><label>參數a</label><input type="text" id="p-pa" value="${state.paraA}"></div>
-        <div class="input-group"><label>頂點k</label><input type="text" id="p-pk" value="${state.paraK}"></div>
+        <div class="input-group">
+          <label>參數a</label><input type="text" id="p-pa" value="${state.paraA}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-pa', 0.05)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-pa', -0.05)">▼</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>頂點k</label><input type="text" id="p-pk" value="${state.paraK}">
+          <div class="step-btns">
+            <button type="button" class="step-btn" onclick="stepInput('p-pk', 0.5)">▲</button>
+            <button type="button" class="step-btn" onclick="stepInput('p-pk', -0.5)">▼</button>
+          </div>
+        </div>
       </div>`;
   }
   bindParamEvents();
@@ -739,7 +712,7 @@ cv.addEventListener('mousedown', (e)=>{
   else if (Math.hypot(m.x-state.C.x, m.y-state.C.y) < hitR) dragTarget = 'C';
   else if (Math.hypot(m.x-currentP.x, m.y-currentP.y) < hitR) dragTarget = 'P';
   else if (Math.hypot(m.x-state.O.x, m.y-state.O.y) < hitR) dragTarget = 'O';
-  else dragTarget = 'pan'; // 點擊空白處拖曳視野 (Pan)
+  else dragTarget = 'pan';
 
   if (dragTarget === 'O') {
     dragMouseStart = { x: m.x, y: m.y };
